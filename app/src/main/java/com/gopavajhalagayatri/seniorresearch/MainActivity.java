@@ -12,6 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.text.InputType;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     ListView simpleList;
     ArrayList<String> taskList = new ArrayList<String>();
     ArrayList<Boolean> state = new ArrayList<Boolean>();
+    View builderView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,13 +69,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("Title");
-                final EditText input = new EditText(MainActivity.this);
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                builder.setView(input);
+                LayoutInflater inflater = getLayoutInflater();
+                final View dialoglayout = inflater.inflate(R.layout.add_task, null);
+                builder.setView(builderView = dialoglayout);
                 builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        m_Text = input.getText().toString();
+                        EditText a = (EditText)builderView.findViewById(R.id.task_name);
+                        m_Text = a.getText().toString();
                         taskList.add(m_Text);
                         state.add(false);
                         arrayAdapter.notifyDataSetChanged();
