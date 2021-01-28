@@ -2,31 +2,42 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:weightSum="1.0">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <EditText
         android:id="@+id/task_name"
-        android:layout_weight=".5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toTopOf="@id/task_due_date"
+        app:layout_constraintBottom_toTopOf="@id/task_time"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:text="Task Name"
-     ></EditText>
+        android:layout_margin="25dp"
+        ></EditText>
+
+    <Spinner
+        android:id = "@+id/task_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="How long will this take to complete?"
+        app:layout_constraintBottom_toTopOf="@id/task_due_date"
+        app:layout_constraintTop_toBottomOf="@id/task_name"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_margin="25dp"
+        ></Spinner>
 
     <Button
-        android:layout_weight=".5"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/task_name"
+        app:layout_constraintTop_toBottomOf="@id/task_time"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:id="@+id/task_due_date"
         android:text="Due Date"
+        android:layout_margin="25dp"
         ></Button>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

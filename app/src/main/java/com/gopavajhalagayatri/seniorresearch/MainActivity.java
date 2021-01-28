@@ -40,10 +40,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "DEBUG MESSAGES";
     ListView simpleList;
     ArrayList<String> taskList = new ArrayList<String>();
-    ArrayList<Boolean> state = new ArrayList<Boolean>();
-    ArrayList<String> timeRequired = new ArrayList<String>();
-    String[] times = {"5 min", "15 min", "30 min", "1 hour", "1 hour 30 min", "2+ hours"};
-    ArrayList<DateSelected> dueDates = new ArrayList<DateSelected>();
+    String[] times = {"Estimated Time to Complete", "5 min", "15 min", "30 min", "1 hour",
+            "1 hour 30 min", "2+ hours"};
+    ArrayList<Task> tasks = new ArrayList<Task>();
     View builderView = null;
 
     @Override
@@ -63,12 +62,12 @@ public class MainActivity extends AppCompatActivity {
                 // TODO Auto-generated method stub
                 ViewGroup temp = (ViewGroup)view;
                 TextView tv = (TextView) temp.getChildAt(0);
-                if(state.get(position)){
+                if(tasks.get(position).state){
                     tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
-                    state.set(position, false);
+                    tasks.get(position).state = false;
                 }else{
                     tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-                    state.set(position, true);
+                    tasks.get(position).state = true;
                 }
             }
         });
@@ -82,10 +81,12 @@ public class MainActivity extends AppCompatActivity {
                 LayoutInflater inflater = getLayoutInflater();
                 final View dialoglayout = inflater.inflate(R.layout.add_task, null);
                 builder.setView(builderView = dialoglayout);
-                /*final Spinner spin = (Spinner)builderView.findViewById(R.id.task_time);
+                builder.setTitle("New Task");
+                final Spinner spin = (Spinner)builderView.findViewById(R.id.task_time);
                 ArrayAdapter<String> timesAdapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, times);
                 timesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                */
+                spin.setAdapter(timesAdapter);
+                spin.setSelection(0);
                 final Button date = (Button)builderView.findViewById(R.id.task_due_date);
                 date.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -96,8 +97,6 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                                         date.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
-                                        DateSelected temp = new DateSelected(dayOfMonth, monthOfYear, year);
-                                        dueDates.add(temp);
                                     }
                                 }, c.get(Calendar.YEAR),c.get(Calendar.MONTH),c.get(Calendar.DATE));
                         dpd.show();
@@ -109,11 +108,12 @@ public class MainActivity extends AppCompatActivity {
                         EditText a = (EditText)builderView.findViewById(R.id.task_name);
                         m_Text = a.getText().toString();
                         taskList.add(m_Text);
-                        state.add(false);
-                        //timeRequired.add(spin.getSelectedItem().toString());
+                        String[] temp = date.getText().toString().split("-");
+                        Task t = new Task(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]),
+                                Integer.parseInt(temp[2]), m_Text, spin.getSelectedItem().toString());
                         arrayAdapter.notifyDataSetChanged();
-                        int temp = taskList.size() - 1;
-                        Log.i(TAG, taskList.get(temp) + " " + dueDates.get(temp));
+                        tasks.add(t);
+                        Log.i(TAG, t.toString());
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -151,15 +151,21 @@ public class MainActivity extends AppCompatActivity {
 }
 
 
-class DateSelected {
+class Task {
     int day;
     int month;
     int year;
+    boolean state;
+    String name;
+    String time;
 
-    public DateSelected(int a, int b, int c){
+    public Task(int a, int b, int c, String d, String e){
         day = a;
         month = b;
         year = c;
+        name = d;
+        time = e;
+        state = false;
     }
 
     @Override
@@ -168,6 +174,9 @@ class DateSelected {
                 "day=" + day +
                 ", month=" + month +
                 ", year=" + year +
+                ", name=" + name +
+                ", time=" + time +
+                ", state=" + state +
                 '}';
     }
 }
