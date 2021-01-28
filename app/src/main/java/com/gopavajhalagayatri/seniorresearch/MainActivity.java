@@ -1,6 +1,7 @@
 package com.gopavajhalagayatri.seniorresearch;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.graphics.Paint;
 import android.os.Bundle;
@@ -18,12 +19,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +41,9 @@ public class MainActivity extends AppCompatActivity {
     ListView simpleList;
     ArrayList<String> taskList = new ArrayList<String>();
     ArrayList<Boolean> state = new ArrayList<Boolean>();
+    ArrayList<String> timeRequired = new ArrayList<String>();
+    String[] times = {"5 min", "15 min", "30 min", "1 hour", "1 hour 30 min", "2+ hours"};
+    ArrayList<DateSelected> dueDates = new ArrayList<DateSelected>();
     View builderView = null;
 
     @Override
@@ -72,6 +82,27 @@ public class MainActivity extends AppCompatActivity {
                 LayoutInflater inflater = getLayoutInflater();
                 final View dialoglayout = inflater.inflate(R.layout.add_task, null);
                 builder.setView(builderView = dialoglayout);
+                /*final Spinner spin = (Spinner)builderView.findViewById(R.id.task_time);
+                ArrayAdapter<String> timesAdapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, times);
+                timesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                */
+                final Button date = (Button)builderView.findViewById(R.id.task_due_date);
+                date.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final Calendar c = Calendar.getInstance();
+                        DatePickerDialog dpd = new DatePickerDialog(MainActivity.this,
+                                new DatePickerDialog.OnDateSetListener() {
+                                    @Override
+                                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                                        date.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+                                        DateSelected temp = new DateSelected(dayOfMonth, monthOfYear, year);
+                                        dueDates.add(temp);
+                                    }
+                                }, c.get(Calendar.YEAR),c.get(Calendar.MONTH),c.get(Calendar.DATE));
+                        dpd.show();
+                    }
+                });
                 builder.setPositiveButton("Add", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -79,7 +110,10 @@ public class MainActivity extends AppCompatActivity {
                         m_Text = a.getText().toString();
                         taskList.add(m_Text);
                         state.add(false);
+                        //timeRequired.add(spin.getSelectedItem().toString());
                         arrayAdapter.notifyDataSetChanged();
+                        int temp = taskList.size() - 1;
+                        Log.i(TAG, taskList.get(temp) + " " + dueDates.get(temp));
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -113,5 +147,27 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+}
+
+
+class DateSelected {
+    int day;
+    int month;
+    int year;
+
+    public DateSelected(int a, int b, int c){
+        day = a;
+        month = b;
+        year = c;
+    }
+
+    @Override
+    public String toString() {
+        return "DateSelected{" +
+                "day=" + day +
+                ", month=" + month +
+                ", year=" + year +
+                '}';
     }
 }
