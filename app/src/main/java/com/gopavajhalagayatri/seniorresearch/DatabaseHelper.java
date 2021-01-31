@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +28,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void onCreate(SQLiteDatabase db) {
         String CREATE_TABLE = "CREATE TABLE " + table_name + "("
-                + task_name + " TEXT," + task_time + " INTEGER PRIMARY KEY," +
-                task_day + " INTEGER PRIMARY KEY," + task_month + " INTEGER PRIMARY KEY," +
-                task_year + " INTEGER PRIMARY KEY," + task_state + " INTEGER PRIMARY KEY" + ")";
+                + task_name + " TEXT PRIMARY KEY," + task_time + " INTEGER," +
+                task_day + " INTEGER," + task_month + " INTEGER," +
+                task_year + " INTEGER," + task_state + " INTEGER" + ")";
         db.execSQL(CREATE_TABLE);
     }
 
@@ -39,19 +40,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     void addTask(Task task) {
+        Log.i("DEBUG", "added");
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
+        Log.i("DEBUG", "part2");
         values.put(task_name, task.name);
         values.put(task_time, task.time);
         values.put(task_day, task.day);
         values.put(task_month, task.month);
         values.put(task_year, task.year);
         values.put(task_state, task.state ? 1 : 0);
-        db.close();
+        db.insert(table_name, null, values);
     }
 
-    public List<Task> getAllTasks() {
-        List<Task> list = new ArrayList<Task>();
+    public ArrayList<Task> getAllTasks() {
+        ArrayList<Task> list = new ArrayList<Task>();
         String selectQuery = "SELECT  * FROM " + table_name;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);

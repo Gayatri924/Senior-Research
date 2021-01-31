@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     String[] times = {"Estimated Time to Complete", "5 min", "15 min", "30 min", "1 hour",
             "1 hour 30 min", "2+ hours"};
     int[] timesConvert = {0, 5, 15, 30, 60, 90, 180};
+    DatabaseHelper db = new DatabaseHelper(this);
     ArrayList<Task> tasks = new ArrayList<Task>();
     View builderView = null;
 
@@ -52,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         simpleList = findViewById(R.id.list_view);
+        //Database setup
+        tasks = db.getAllTasks();
+        for(int i = 0; i < tasks.size(); i++){
+            Log.i(TAG, tasks.get(i).toString());
+            taskList.add(tasks.get(i).name);
+        }
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.tasks_list, R.id.taskItem, taskList);
         simpleList.setAdapter(arrayAdapter);
         setSupportActionBar(toolbar);
@@ -114,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                                 Integer.parseInt(temp[2]), m_Text, timesConvert[spin.getSelectedItemPosition()], false);
                         arrayAdapter.notifyDataSetChanged();
                         tasks.add(t);
-                        Log.i(TAG, t.toString());
+                        db.addTask(t);
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
