@@ -1,0 +1,76 @@
+package com.gopavajhalagayatri.seniorresearch;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+    private static final int DATABASE_VERSION = 1;
+    private static final String DATABASE_NAME = "TasksManager";
+    private static final String table_name = "Tasks";
+    private static final String task_name = "Name";
+    private static final String task_time = "Time";
+    private static final String task_day = "Day";
+    private static final String task_month = "Month";
+    private static final String task_year = "Year";
+    private static final String task_state = "State";
+
+
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public void onCreate(SQLiteDatabase db) {
+        String CREATE_TABLE = "CREATE TABLE " + table_name + "("
+                + task_name + " TEXT," + task_time + " INTEGER PRIMARY KEY," +
+                task_day + " INTEGER PRIMARY KEY," + task_month + " INTEGER PRIMARY KEY," +
+                task_year + " INTEGER PRIMARY KEY," + task_state + " INTEGER PRIMARY KEY" + ")";
+        db.execSQL(CREATE_TABLE);
+    }
+
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + table_name);
+        onCreate(db);
+    }
+
+    void addTask(Task task) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(task_name, task.name);
+        values.put(task_time, task.time);
+        values.put(task_day, task.day);
+        values.put(task_month, task.month);
+        values.put(task_year, task.year);
+        values.put(task_state, task.state ? 1 : 0);
+        db.close();
+    }
+
+    public List<Task> getAllTasks() {
+        List<Task> list = new ArrayList<Task>();
+        String selectQuery = "SELECT  * FROM " + table_name;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        if (cursor.moveToFirst()) {
+            do {
+                boolean temp;
+                if (Integer.parseInt(cursor.getString(5)) >= 1) {
+                    temp = true;
+                } else {
+                    temp = false;
+                }
+                Task t = new Task(Integer.parseInt(cursor.getString(2)),
+                        Integer.parseInt(cursor.getString(3)),
+                        Integer.parseInt(cursor.getString(4)),
+                        cursor.getString(0),
+                        Integer.parseInt(cursor.getString(1)), temp);
+                list.add(t);
+            } while (cursor.moveToNext());
+        }
+        return list;
+    }
+}

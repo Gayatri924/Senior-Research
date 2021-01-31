@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> taskList = new ArrayList<String>();
     String[] times = {"Estimated Time to Complete", "5 min", "15 min", "30 min", "1 hour",
             "1 hour 30 min", "2+ hours"};
+    int[] timesConvert = {0, 5, 15, 30, 60, 90, 180};
     ArrayList<Task> tasks = new ArrayList<Task>();
     View builderView = null;
 
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                         taskList.add(m_Text);
                         String[] temp = date.getText().toString().split("-");
                         Task t = new Task(Integer.parseInt(temp[0]), Integer.parseInt(temp[1]),
-                                Integer.parseInt(temp[2]), m_Text, spin.getSelectedItem().toString());
+                                Integer.parseInt(temp[2]), m_Text, timesConvert[spin.getSelectedItemPosition()], false);
                         arrayAdapter.notifyDataSetChanged();
                         tasks.add(t);
                         Log.i(TAG, t.toString());
@@ -157,15 +158,15 @@ class Task {
     int year;
     boolean state;
     String name;
-    String time;
+    int time;
 
-    public Task(int a, int b, int c, String d, String e){
+    public Task(int a, int b, int c, String d, int e, boolean f){
         day = a;
         month = b;
         year = c;
         name = d;
         time = e;
-        state = false;
+        state = f;
     }
 
     @Override
