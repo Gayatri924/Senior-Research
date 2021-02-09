@@ -1,8 +1,11 @@
 package com.gopavajhalagayatri.seniorresearch;
 
 import android.app.AlertDialog;
+import android.app.AppOpsManager;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Bundle;
 
@@ -11,6 +14,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.provider.Settings;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -52,6 +56,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        //Permissions
+        AppOpsManager appOps = (AppOpsManager)getSystemService(Context.APP_OPS_SERVICE);
+        int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                android.os.Process.myUid(), getPackageName());
+        if(mode != AppOpsManager.MODE_ALLOWED){
+            startActivityForResult(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS),1);
+        }
+
+        //Actual layout
         simpleList = findViewById(R.id.list_view);
         //Database setup
         tasks = db.getAllTasks();
@@ -155,36 +168,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-}
-
-
-class Task {
-    int day;
-    int month;
-    int year;
-    boolean state;
-    String name;
-    int time;
-
-    public Task(int a, int b, int c, String d, int e, boolean f){
-        day = a;
-        month = b;
-        year = c;
-        name = d;
-        time = e;
-        state = f;
-    }
-
-    @Override
-    public String toString() {
-        return "DateSelected{" +
-                "day=" + day +
-                ", month=" + month +
-                ", year=" + year +
-                ", name=" + name +
-                ", time=" + time +
-                ", state=" + state +
-                '}';
     }
 }
