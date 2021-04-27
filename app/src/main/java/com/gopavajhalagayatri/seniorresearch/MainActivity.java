@@ -3,6 +3,8 @@ package com.gopavajhalagayatri.seniorresearch;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
 import android.app.DatePickerDialog;
+import android.app.usage.UsageStats;
+import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +13,8 @@ import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -30,7 +34,12 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
@@ -62,6 +71,29 @@ public class MainActivity extends AppCompatActivity {
                 android.os.Process.myUid(), getPackageName());
         if(mode != AppOpsManager.MODE_ALLOWED){
             startActivityForResult(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS),1);
+        }
+        //usage stats
+        UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+        ArrayList<List<UsageStats>> lastWeek = new ArrayList<List<UsageStats>>();
+        for(int i = 0; i < 7; i++){
+            Calendar beginCal = Calendar.getInstance();
+            beginCal.set(Calendar.DATE, beginCal.get(Calendar.DATE) - (i+1));
+            Calendar endCal = Calendar.getInstance();
+            beginCal.set(Calendar.DATE, beginCal.get(Calendar.DATE) - i);
+            List<UsageStats> queryUsageStats= usageStatsManager.queryUsageStats(
+                    UsageStatsManager.INTERVAL_DAILY, beginCal.getTimeInMillis(), endCal.getTimeInMillis());
+            ArrayList<UsageStats> processed = new ArrayList<>();
+            for(int j = 0; j < queryUsageStats.size(); j++){
+                if(queryUsageStats.get(j).getTotalTimeInForeground() != 0){
+                    processed.add(queryUsageStats.get(j));
+                }
+            }
+            lastWeek.add(processed);
+        }
+        
+        for(int i = 0; i < lastWeek.get(0).size(); i++) {
+            UsageStats temp = lastWeek.get(0).get(i);
+            Log.i(TAG, temp.getPackageName() + "          " + temp.getTotalTimeInForeground());
         }
 
         //Actual layout
