@@ -53,6 +53,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(table_name, null, values);
     }
 
+    void changeState(String name){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+    }
+
     public ArrayList<Task> getAllTasks() {
         ArrayList<Task> list = new ArrayList<Task>();
         String selectQuery = "SELECT  * FROM " + table_name;

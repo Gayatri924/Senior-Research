@@ -1,13 +1,19 @@
 package com.gopavajhalagayatri.seniorresearch;
 
+import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.AppOpsManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Paint;
 import android.os.Bundle;
 
@@ -18,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.text.InputType;
 import android.util.Log;
@@ -50,7 +57,7 @@ import android.widget.Toast;
 public class MainActivity extends AppCompatActivity {
 
     private String m_Text = "";
-    private static final String TAG = "DEBUG MESSAGES";
+    private static final String TAG = "PETRICHOR";
     ListView simpleList;
     ArrayList<String> taskList = new ArrayList<String>();
     String[] times = {"Estimated Time to Complete", "5 min", "15 min", "30 min", "1 hour",
@@ -59,49 +66,23 @@ public class MainActivity extends AppCompatActivity {
     DatabaseHelper db = new DatabaseHelper(this);
     ArrayList<Task> tasks = new ArrayList<Task>();
     View builderView = null;
+    int fifteenMin = 900000;
 
+    @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
-        //Permissions
-        AppOpsManager appOps = (AppOpsManager)getSystemService(Context.APP_OPS_SERVICE);
-        int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
-                android.os.Process.myUid(), getPackageName());
-        if(mode != AppOpsManager.MODE_ALLOWED){
-            startActivityForResult(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS),1);
-        }
-        //usage stats
-        UsageStatsManager usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
-        ArrayList<List<UsageStats>> lastWeek = new ArrayList<List<UsageStats>>();
-        for(int i = 0; i < 7; i++){
-            Calendar beginCal = Calendar.getInstance();
-            beginCal.set(Calendar.DATE, beginCal.get(Calendar.DATE) - (i+1));
-            Calendar endCal = Calendar.getInstance();
-            beginCal.set(Calendar.DATE, beginCal.get(Calendar.DATE) - i);
-            List<UsageStats> queryUsageStats= usageStatsManager.queryUsageStats(
-                    UsageStatsManager.INTERVAL_DAILY, beginCal.getTimeInMillis(), endCal.getTimeInMillis());
-            ArrayList<UsageStats> processed = new ArrayList<>();
-            for(int j = 0; j < queryUsageStats.size(); j++){
-                if(queryUsageStats.get(j).getTotalTimeInForeground() != 0){
-                    processed.add(queryUsageStats.get(j));
-                }
-            }
-            lastWeek.add(processed);
-        }
-        
-        for(int i = 0; i < lastWeek.get(0).size(); i++) {
-            UsageStats temp = lastWeek.get(0).get(i);
-            Log.i(TAG, temp.getPackageName() + "          " + temp.getTotalTimeInForeground());
-        }
+
+        Log.i(TAG, "here");
+        registerAlarm(this);
 
         //Actual layout
         simpleList = findViewById(R.id.list_view);
         //Database setup
         tasks = db.getAllTasks();
         for(int i = 0; i < tasks.size(); i++){
-            Log.i(TAG, tasks.get(i).toString());
             taskList.add(tasks.get(i).name);
         }
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.tasks_list, R.id.taskItem, taskList);
@@ -178,6 +159,14 @@ public class MainActivity extends AppCompatActivity {
                 builder.show();
             }
         });
+    }
+
+    public void registerAlarm(Context context) {
+        AlarmManager mgr=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        Intent i=new Intent(context, MyAlarmReceiver.class);
+        PendingIntent pi=PendingIntent.getBroadcast(context, 0, i, 0);
+        mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), fifteenMin, pi);
+
     }
 
     @Override
