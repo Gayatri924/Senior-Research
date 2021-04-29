@@ -53,9 +53,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(table_name, null, values);
     }
 
-    void changeState(String name){
+    void changeState(String name, int state){
         SQLiteDatabase db = this.getWritableDatabase();
-
+        String query = "UPDATE " + table_name + " SET " + task_state + " = " +
+                state + " WHERE " + task_name + " = '" + name + "';";
+        db.execSQL(query);
     }
 
     public ArrayList<Task> getAllTasks() {

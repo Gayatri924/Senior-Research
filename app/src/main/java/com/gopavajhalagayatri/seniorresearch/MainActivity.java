@@ -88,7 +88,15 @@ public class MainActivity extends AppCompatActivity {
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.tasks_list, R.id.taskItem, taskList);
         simpleList.setAdapter(arrayAdapter);
         setSupportActionBar(toolbar);
-
+        ViewGroup listName = (ViewGroup)simpleList;
+        for(int i = 0; i < tasks.size(); i++){
+            TextView tv = (TextView) listName.getChildAt(i);
+            if(tasks.get(i).state){
+                //tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            }else{
+                //tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+        }
         simpleList.setOnItemClickListener(new OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
@@ -99,9 +107,11 @@ public class MainActivity extends AppCompatActivity {
                 if(tasks.get(position).state){
                     tv.setPaintFlags(tv.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
                     tasks.get(position).state = false;
+                    db.changeState(tasks.get(position).name, 0);
                 }else{
                     tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                     tasks.get(position).state = true;
+                    db.changeState(tasks.get(position).name, 1);
                 }
             }
         });
@@ -165,8 +175,7 @@ public class MainActivity extends AppCompatActivity {
         AlarmManager mgr=(AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Intent i=new Intent(context, MyAlarmReceiver.class);
         PendingIntent pi=PendingIntent.getBroadcast(context, 0, i, 0);
-        mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), fifteenMin, pi);
-
+        mgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), 60000, pi);
     }
 
     @Override

@@ -9,17 +9,20 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import androidx.core.app.NotificationCompat;
 
 public class MyAlarmReceiver extends BroadcastReceiver {
 
     int fifteenMin = 900000;
     String TAG = "PETRICHOR";
+    DatabaseHelper db = new DatabaseHelper(null);
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        //Package
         PackageManager pm= context.getPackageManager();
         UsageStatsManager usageStatsManager = (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
         long currentTime = System.currentTimeMillis(); // Get current time in milliseconds
@@ -47,5 +50,30 @@ public class MyAlarmReceiver extends BroadcastReceiver {
             }
         }
         Log.i(TAG, count + "  " + socialVal);
+        //ArrayList<Task> tasks = db.getAllTasks();
+        String name = "";
+        if(count == 0){
+            return;
+        }
+        /*if(count <=0){
+            for(Task item: tasks){
+                if((item.time < 15 || item.name.contains("email")) && !item.state){
+                    name = item.name;
+                    break;
+                }
+            }
+        }else {
+            for (Task item : tasks) {
+                if (item.time > 15 && !item.state) {
+                    name = item.name;
+                    break;
+                }
+            }
+        }
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(null, "Channel")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("productivity")
+                .setContentText(name)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);*/
     }
 }
